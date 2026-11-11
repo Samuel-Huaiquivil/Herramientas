@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Entrega de herramienta</h2>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    {% include "inventario/_firma.html" %}
+    <button class="btn" type="submit">Registrar entrega</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Mantenimiento preventivo</h2>
+{% if perms.inventario.add_planmantenimiento %}<p><a class="btn" href="{% url 'plan_nuevo' %}">Nuevo plan</a></p>{% endif %}
+<div class="card">
+<table>
+  <tr><th>Activo</th><th>Tarea</th><th>Fecha límite</th><th>Horas restantes</th><th>Estado</th><th></th></tr>
+  {% for p in object_list %}
+    <tr><td><a href="{% url 'activo_detalle' p.activo.pk %}">{{ p.activo }}</a></td><td>{{ p.descripcion }}</td>
+        <td>{{ p.proxima_fecha|date:"d/m/Y"|default:"—" }}</td><td>{{ p.horas_restantes|default_if_none:"—" }}</td>
+        <td>{% if p.vencido %}<span class="alerta">VENCIDO</span>{% elif p.por_vencer %}Por vencer{% else %}Al día{% endif %}</td>
+        <td>{% if perms.inventario.change_planmantenimiento %}
+          <form method="post" action="{% url 'plan_completar' p.pk %}">{% csrf_token %}<button class="btn sec" type="submit">Marcar realizado</button></form>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="6" class="muted">Sin planes.</td></tr>{% endfor %}
+</table>
+</div>
+{% endblock %}

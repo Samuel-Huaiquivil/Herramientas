@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Activos</h2>
+<form method="get" class="card">
+  <input name="q" placeholder="Buscar código o nombre" value="{{ q }}">
+  <select name="estado">
+    <option value="">Todos los estados</option>
+    {% for valor, label in estados %}<option value="{{ valor }}" {% if valor == estado_actual %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <button class="btn" type="submit">Filtrar</button>
+  {% if perms.inventario.add_activo %}<a class="btn sec" href="{% url 'activo_nuevo' %}">Nuevo activo</a>{% endif %}
+</form>
+<div class="card">
+<table>
+  <tr><th>Código</th><th>Nombre</th><th>Categoría</th><th>Estado</th><th>Horas</th><th>Tarifa/día</th></tr>
+  {% for a in object_list %}
+    <tr><td><a href="{% url 'activo_detalle' a.pk %}">{{ a.codigo }}</a></td><td>{{ a.nombre }}</td><td>{{ a.categoria }}</td>
+        <td><span class="badge badge-{{ a.estado }}">{{ a.get_estado_display }}</span></td><td>{{ a.horas_uso }}</td><td>${{ a.tarifa_diaria|floatformat:0 }}</td></tr>
+  {% empty %}<tr><td colspan="6" class="muted">Sin resultados.</td></tr>{% endfor %}
+</table>
+{% if is_paginated %}
+  <p>
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ q|urlencode }}&estado={{ estado_actual }}">« Anterior</a>{% endif %}
+    Página {{ page_obj.number }} de {{ paginator.num_pages }}
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ q|urlencode }}&estado={{ estado_actual }}">Siguiente »</a>{% endif %}
+  </p>
+{% endif %}
+</div>
+{% endblock %}

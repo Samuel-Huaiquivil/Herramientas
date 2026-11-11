@@ -1,0 +1,19 @@
+<p><strong>Firma del responsable de obra</strong> <span class="muted">(simulación: dibuja con el mouse o el dedo)</span></p>
+<canvas id="firma" width="500" height="160" style="border:1px solid #888;background:#fff;touch-action:none;max-width:100%"></canvas>
+<p><button type="button" class="btn sec" id="limpiar">Limpiar firma</button></p>
+<script>
+(function () {
+  const c = document.getElementById("firma"), ctx = c.getContext("2d"), campo = document.getElementById("id_firma");
+  let dibujando = false, hay = false;
+  ctx.lineWidth = 2; ctx.lineCap = "round";
+  function pos(e) { const r = c.getBoundingClientRect(); return [(e.clientX - r.left) * c.width / r.width, (e.clientY - r.top) * c.height / r.height]; }
+  c.addEventListener("pointerdown", e => { dibujando = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p[0], p[1]); c.setPointerCapture(e.pointerId); });
+  c.addEventListener("pointermove", e => { if (!dibujando) return; const p = pos(e); ctx.lineTo(p[0], p[1]); ctx.stroke(); hay = true; });
+  ["pointerup", "pointercancel"].forEach(n => c.addEventListener(n, () => { dibujando = false; }));
+  document.getElementById("limpiar").onclick = () => { ctx.clearRect(0, 0, c.width, c.height); hay = false; campo.value = ""; };
+  c.closest("form").addEventListener("submit", e => {
+    if (!hay) { e.preventDefault(); alert("Falta la firma."); return; }
+    campo.value = c.toDataURL("image/png");
+  });
+})();
+</script>

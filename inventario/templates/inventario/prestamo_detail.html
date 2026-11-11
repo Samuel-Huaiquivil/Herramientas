@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+{% with p=object %}
+<h2>Comprobante de préstamo #{{ p.pk }}</h2>
+<div class="card">
+  <p><strong>{{ p.activo }}</strong> · {{ p.subcontratista }} · {{ p.obra }}</p>
+  <p>Entrega: {{ p.fecha_entrega|date:"d/m/Y H:i" }} (por {{ p.entregado_por }}) · Responsable de obra: {{ p.responsable_obra }}</p>
+  <p>Devolución: {% if p.abierto %}<em>pendiente</em>{% else %}{{ p.fecha_devolucion|date:"d/m/Y H:i" }} (recibido por {{ p.recibido_por }}){% endif %}</p>
+  <p>Tarifa: ${{ p.tarifa_diaria|floatformat:0 }}/día × {{ p.dias_cobrados }} día{{ p.dias_cobrados|pluralize }} =
+     <strong>${{ p.cobro|floatformat:0 }}</strong>{% if p.abierto %} <span class="muted">(a la fecha)</span>{% endif %}</p>
+  {% if not p.abierto %}
+    <p>Horas de uso: {{ p.horas_uso_periodo }} · {% if p.hay_danos %}<span class="alerta">Devuelto con daños</span>{% else %}Sin daños{% endif %}</p>
+    {% if p.observaciones %}<p class="muted">{{ p.observaciones }}</p>{% endif %}
+  {% endif %}
+  {% if p.abierto and perms.inventario.change_prestamo %}<a class="btn" href="{% url 'devolucion' p.pk %}">Registrar devolución</a>{% endif %}
+</div>
+<div class="card"><h3>Firma de entrega</h3><img class="firma" src="{{ p.firma_entrega }}" alt="Firma de entrega"></div>
+{% if p.firma_devolucion %}<div class="card"><h3>Firma de devolución</h3><img class="firma" src="{{ p.firma_devolucion }}" alt="Firma de devolución"></div>{% endif %}
+{% endwith %}
+{% endblock %}

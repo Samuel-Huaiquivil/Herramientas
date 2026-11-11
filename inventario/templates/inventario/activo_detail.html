@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+{% with a=object %}
+<h2>{{ a.codigo }} — {{ a.nombre }} <span class="badge badge-{{ a.estado }}">{{ a.get_estado_display }}</span></h2>
+<div class="card">
+  <p>{{ a.categoria }} · {{ a.horas_uso }} h de uso · ${{ a.tarifa_diaria|floatformat:0 }}/día</p>
+  <p class="muted">{{ a.descripcion }}</p>
+  {% if a.mantenimiento_vencido %}<p class="alerta">Tiene mantenimiento vencido.</p>{% endif %}
+  {% if perms.inventario.change_activo and a.estado != 'BAJA' %}<a class="btn sec" href="{% url 'activo_editar' a.pk %}">Editar</a>{% endif %}
+  {% if perms.inventario.add_prestamo and a.estado == 'DISPONIBLE' %}<a class="btn" href="{% url 'entrega' %}?activo={{ a.pk }}">Entregar</a>{% endif %}
+</div>
+
+{% if perms.inventario.dar_de_baja and a.estado != 'EN_USO' and a.estado != 'BAJA' %}
+<div class="card">
+  <h3>Cambiar estado</h3>
+  <form method="post" action="{% url 'activo_estado' a.pk %}">{% csrf_token %}
+    {{ form_estado.estado }} {{ form_estado.motivo }}
+    <button class="btn" type="submit">Aplicar</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="card"><h3>Mantenimientos programados</h3>
+  <table>
+    {% for p in planes %}<tr><td>{{ p.descripcion }}</td>
+      <td>{% if p.proxima_fecha %}Fecha límite: {{ p.proxima_fecha|date:"d/m/Y" }}{% endif %}</td>
+      <td>{% if p.cada_horas %}Horas restantes: {{ p.horas_restantes }}{% endif %}</td>
+      <td>{% if p.vencido %}<span class="alerta">VENCIDO</span>{% endif %}</td></tr>
+    {% empty %}<tr><td class="muted">Sin planes.</td></tr>{% endfor %}
+  </table>
+</div>
+
+<div class="card"><h3>Últimos préstamos</h3>
+  <table>
+    {% for p in prestamos %}<tr><td><a href="{% url 'prestamo_detalle' p.pk %}">#{{ p.pk }}</a></td><td>{{ p.subcontratista }}</td><td>{{ p.obra }}</td>
+      <td>{{ p.fecha_entrega|date:"d/m/Y" }}</td><td>{% if p.abierto %}en uso{% else %}${{ p.cobro|floatformat:0 }}{% endif %}</td></tr>
+    {% empty %}<tr><td class="muted">Sin préstamos.</td></tr>{% endfor %}
+  </table>
+</div>
+
+<div class="card"><h3>Historial de estados</h3>
+  <table>
+    {% for h in historial %}<tr><td>{{ h.fecha|date:"d/m/Y H:i" }}</td><td>{{ h.get_anterior_display }} → {{ h.get_nuevo_display }}</td><td>{{ h.usuario|default:"-" }}</td><td class="muted">{{ h.motivo }}</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endwith %}
+{% endblock %}

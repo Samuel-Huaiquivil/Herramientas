@@ -1,0 +1,9 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+staticfiles/
+*.log
+.DS_Store
+deploy/

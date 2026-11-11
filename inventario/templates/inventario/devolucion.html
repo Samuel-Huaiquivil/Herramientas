@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Devolución de {{ prestamo.activo }}</h2>
+  <p class="muted">Entregado a {{ prestamo.subcontratista }} en {{ prestamo.obra }} el {{ prestamo.fecha_entrega|date:"d/m/Y H:i" }}.
+  Cobro a hoy: ${{ prestamo.cobro|floatformat:0 }} ({{ prestamo.dias_cobrados }} día{{ prestamo.dias_cobrados|pluralize }}).</p>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    {% include "inventario/_firma.html" %}
+    <button class="btn" type="submit">Registrar devolución</button>
+  </form>
+</div>
+{% endblock %}

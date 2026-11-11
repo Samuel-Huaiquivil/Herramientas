@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Resumen</h2>
+<div class="grid">
+  {% for valor, label, n in conteos %}
+    <a class="card" style="text-decoration:none;color:inherit" href="{% url 'activo_lista' %}?estado={{ valor }}">
+      <div class="muted">{{ label }}</div><div class="num">{{ n }}</div>
+    </a>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <h3>Mantenimientos</h3>
+  {% if vencidos or por_vencer %}
+  <table>
+    {% for p in vencidos %}
+      <tr><td class="alerta">VENCIDO</td><td><a href="{% url 'activo_detalle' p.activo.pk %}">{{ p.activo }}</a></td><td>{{ p.descripcion }}</td></tr>
+    {% endfor %}
+    {% for p in por_vencer %}
+      <tr><td>Por vencer</td><td><a href="{% url 'activo_detalle' p.activo.pk %}">{{ p.activo }}</a></td><td>{{ p.descripcion }}</td></tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="muted">Sin mantenimientos vencidos ni próximos.</p>{% endif %}
+</div>
+
+<div class="card">
+  <h3>Herramientas en terreno</h3>
+  {% if abiertos %}
+  <table>
+    <tr><th>Activo</th><th>Subcontratista</th><th>Obra</th><th>Desde</th><th></th></tr>
+    {% for p in abiertos %}
+      <tr><td>{{ p.activo }}</td><td>{{ p.subcontratista }}</td><td>{{ p.obra }}</td><td>{{ p.fecha_entrega|date:"d/m/Y H:i" }}</td>
+          <td><a href="{% url 'prestamo_detalle' p.pk %}">ver</a></td></tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="muted">Nada prestado en este momento.</p>{% endif %}
+  {% if perms.inventario.add_prestamo %}<p><a class="btn" href="{% url 'entrega' %}">Registrar entrega</a></p>{% endif %}
+</div>
+{% endblock %}

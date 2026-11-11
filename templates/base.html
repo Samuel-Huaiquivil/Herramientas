@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Control de Herramientas{% endblock %}</title>
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --txt:#1f2933; --muted:#6b7280; --line:#e2e5ea; --main:#c2410c; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, sans-serif; background:var(--bg); color:var(--txt); }
+  nav { background:#1f2933; padding:.6rem 1rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:center; }
+  nav a, nav button { color:#fff; text-decoration:none; background:none; border:0; font:inherit; cursor:pointer; }
+  nav a:hover, nav button:hover { text-decoration:underline; }
+  nav .marca { font-weight:700; color:#fdba74; margin-right:1rem; }
+  nav form { margin-left:auto; display:flex; gap:.6rem; align-items:center; color:#cbd5e1; }
+  main { max-width:960px; margin:1.5rem auto; padding:0 1rem; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:1rem; margin-bottom:1rem; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.45rem .5rem; border-bottom:1px solid var(--line); font-size:.95rem; }
+  th { color:var(--muted); font-weight:600; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.8rem; }
+  .num { font-size:1.8rem; font-weight:700; }
+  .muted { color:var(--muted); }
+  .badge { padding:.1rem .5rem; border-radius:99px; font-size:.8rem; background:#e5e7eb; }
+  .badge-DISPONIBLE { background:#dcfce7; } .badge-EN_USO { background:#dbeafe; }
+  .badge-MANTENIMIENTO { background:#fef3c7; } .badge-BAJA { background:#fee2e2; }
+  .alerta { color:#b91c1c; font-weight:600; }
+  .msg { padding:.6rem .8rem; border-radius:6px; margin-bottom:.6rem; background:#e0f2fe; }
+  .msg.error { background:#fee2e2; } .msg.success { background:#dcfce7; }
+  .btn, button.btn { display:inline-block; background:var(--main); color:#fff; padding:.4rem .9rem; border:0; border-radius:6px; text-decoration:none; cursor:pointer; font:inherit; }
+  .btn.sec { background:#4b5563; }
+  input, select, textarea { font:inherit; padding:.35rem; max-width:100%; }
+  form p { margin:.6rem 0; } form label { display:block; font-weight:600; font-size:.9rem; }
+  .errorlist { color:#b91c1c; padding-left:1rem; }
+  img.firma { border:1px solid var(--line); background:#fff; max-width:100%; }
+</style>
+</head>
+<body>
+<nav>
+  <span class="marca">🔧 Control de Herramientas</span>
+  {% if user.is_authenticated %}
+    <a href="{% url 'dashboard' %}">Inicio</a>
+    {% if perms.inventario.view_activo %}<a href="{% url 'activo_lista' %}">Activos</a>{% endif %}
+    {% if perms.inventario.view_prestamo %}<a href="{% url 'prestamo_lista' %}">Préstamos</a>{% endif %}
+    {% if perms.inventario.view_planmantenimiento %}<a href="{% url 'plan_lista' %}">Mantenimientos</a>{% endif %}
+    {% if user.is_staff %}<a href="{% url 'admin:index' %}">Admin</a>{% endif %}
+    <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+      <span>{{ user.username }}</span><button type="submit">Salir</button>
+    </form>
+  {% endif %}
+</nav>
+<main>
+  {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>
